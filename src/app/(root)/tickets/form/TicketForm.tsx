@@ -12,6 +12,7 @@ import { CheckboxWithLabel } from "@/components/inputs/CheckBoxWithLabel"
 
 import { insertTicketSchema, type insertTicketSchemaType, type selectTicketSchemaType } from "@/zod-schemas/ticket"
 import { selectCustomerSchemaType } from "@/zod-schemas/customer"
+import { useEffect, useState } from "react"
 
 type Props = {
     customer: selectCustomerSchemaType,
@@ -21,6 +22,8 @@ type Props = {
 export default function TicketForm({
     customer, ticket
 }: Props) {
+    const [isClient, setIsClient] = useState(false);
+
     const defaultValues: insertTicketSchemaType = {
         id: ticket?.id ?? "(New)",
         customerId: ticket?.customerId ?? customer.id,
@@ -35,6 +38,14 @@ export default function TicketForm({
         resolver: zodResolver(insertTicketSchema),
         defaultValues,
     })
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    if (!isClient) {
+        return null
+    }
 
     async function submitForm(data: insertTicketSchemaType) {
         console.log(data)

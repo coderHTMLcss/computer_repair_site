@@ -19,7 +19,9 @@ type Props<S> = {
 } & InputHTMLAttributes<HTMLInputElement>;
 
 const InputWithLabel = <S,>({ fieldTitle, nameInScemas, className, ...props }: Props<S>) => {
-    const form = useFormContext()
+    const form = useFormContext();
+    console.log(form);
+
     return (
         <FormField
             control={form.control}
