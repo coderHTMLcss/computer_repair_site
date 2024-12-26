@@ -9,11 +9,13 @@ import InputWithLabel from "@/components/inputs/InputsWithLabel"
 import { SelectWithLabel } from "@/components/inputs/SelectWithLabel"
 import { TextAreaWithLabel } from "@/components/inputs/TextAreaLabel"
 
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs"
 
 import { RegionsArray } from "@/constants/RegionsArray"
 
 import { insertCustomerSchema, type insertCustomerSchemaType, type selectCustomerSchemaType } from "@/zod-schemas/customer"
 import { useEffect, useState } from "react"
+import { CheckboxWithLabel } from "@/components/inputs/CheckBoxWithLabel"
 
 
 
@@ -23,6 +25,9 @@ type Props = {
 
 export default function CustomerForm({ customer }: Props) {
     const [isClient, setIsClient] = useState(false);
+    const { getPermission, isLoading } = useKindeBrowserClient()
+    const isManager = !isLoading && getPermission('manager')?.isGranted
+    console.log(isManager);
 
     const defaultValues: insertCustomerSchemaType = {
         id: customer?.id ?? 0,
@@ -36,6 +41,7 @@ export default function CustomerForm({ customer }: Props) {
         phone: customer?.phone ?? '',
         email: customer?.email ?? '',
         notes: customer?.notes ?? '',
+        active: customer?.active ?? true,
     }
     const form = useForm<insertCustomerSchemaType>({
         mode: 'onBlur',
@@ -55,11 +61,12 @@ export default function CustomerForm({ customer }: Props) {
         console.log(data)
     }
 
+
     return (
         <div className="flex flex-col gap-1 sm:px-8">
             <div>
                 <h2 className="text-2xl font-bold">
-                    {customer?.id ? "Edit" : "New"} Customer Form
+                    {customer?.id ? "Edit" : "New"} Customer {customer?.id ? `#${customer.id}` : "Form"}
                 </h2>
             </div>
             <Form {...form}>
@@ -124,6 +131,13 @@ export default function CustomerForm({ customer }: Props) {
                             nameInSchemas="notes"
                             className="h-40 resize-none"
                         />
+
+                        {isLoading ? <p>Loading...</p> : isManager && customer?.id ? (
+                            <CheckboxWithLabel<insertCustomerSchemaType>
+                                fieldTitle="Active"
+                                nameInSchemas="active"
+                                message="Yes"
+                            />) : null}
 
                         <div className="flex gap-2">
                             <Button
